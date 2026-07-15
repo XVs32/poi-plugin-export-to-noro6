@@ -1,6 +1,6 @@
 {
     "name": "poi-plugin-noro6-exporter",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Export ships and equipment to noro6 Air Simulator",
     "main": "index.es",
     "repository": {
