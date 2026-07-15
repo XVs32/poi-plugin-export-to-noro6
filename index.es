@@ -7,6 +7,9 @@ import { get, values } from 'lodash'
 const { clipboard, remote } = window.require('electron')
 const { BrowserWindow } = remote
 
+// Keep a persistent reference to the window outside the component instance
+let kcwebWindow = null
+
 function buildExportPayload(state) {
     const ships = get(state, 'info.ships', {})
     const equips = get(state, 'info.equips', {})
@@ -63,13 +66,30 @@ class ExportToKcweb extends Component {
     openNewPage = () => {
         const url = getKcwebUrl(this.props.state)
 
-        const newWindow = new BrowserWindow({ show: false })
-        newWindow.maximize()
-        newWindow.once('ready-to-show', () => {
-            newWindow.show()
-        })
+        // If the window exists and hasn't been closed by the user, reuse it
+        if (kcwebWindow && !kcwebWindow.isDestroyed()) {
+            kcwebWindow.loadURL(url)
 
-        newWindow.loadURL(url)
+            if (kcwebWindow.isMinimized()) {
+                kcwebWindow.restore()
+            }
+            kcwebWindow.focus()
+        } else {
+            // Otherwise, create a new window
+            kcwebWindow = new BrowserWindow({ show: false })
+            kcwebWindow.maximize()
+
+            kcwebWindow.once('ready-to-show', () => {
+                kcwebWindow.show()
+            })
+
+            // Reset reference to null when the window is closed
+            kcwebWindow.on('closed', () => {
+                kcwebWindow = null
+            })
+
+            kcwebWindow.loadURL(url)
+        }
     }
 
     copyLink = () => {
