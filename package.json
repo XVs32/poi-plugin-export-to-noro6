@@ -2,14 +2,27 @@
     "name": "poi-plugin-noro6-exporter",
     "version": "1.0.0",
     "description": "Export ships and equipment to noro6 Air Simulator",
-    "main": "index.jsx",
-    "author": "YourName",
-    "license": "MIT",
+    "main": "index.es",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/XVs32/poi-plugin-export-to-noro6.git"
+    },
+    "bugs": {
+        "url": "https://github.com/XVs32/poi-plugin-export-to-noro6/issues"
+    },
+    "keywords": [
+        "poi-plugin"
+    ],
+    "license": "Apache-2.0",
+    "author": {
+        "name": "XVs32",
+        "link": "https://github.com/XVs32"
+    },
     "poiPlugin": {
-        "name": "noro6 匯出器",
-        "description": "將艦娘與裝備資料匯出至制空權模擬器",
+        "name": "Noro6 Exporter",
+        "description": "Export ships and equipment to noro6 Air Simulator",
         "icon": "fa/cloud-upload-alt",
-        "priority": 10
+        "priority": 99
     },
     "dependencies": {
         "react": "^16.0.0 || ^17.0.0",
