@@ -96,6 +96,32 @@ class ExportToKcweb extends Component {
             kcwebWindow = new BrowserWindow({ show: false })
             kcwebWindow.maximize()
 
+            const { session } = remote // Ensure we grab session from remote
+            const windowSession = kcwebWindow.webContents.session
+
+            windowSession.on('will-download', (event, item, webContents) => {
+                // This triggers Electron's native "Save As" system dialog 
+                // so the user can choose where to save the backup file.
+                item.setSaveDialogOptions({
+                    title: 'Save kc-web Backup',
+                    defaultPath: item.getFilename()
+                })
+                
+                item.on('updated', (event, state) => {
+                    if (state === 'interrupted') {
+                        console.warn('Download was interrupted')
+                    }
+                })
+
+                item.once('done', (event, state) => {
+                    if (state === 'completed') {
+                        console.debug('Backup download completed successfully')
+                    } else {
+                        console.error(`Download failed: ${state}`)
+                    }
+                })
+            })
+
             kcwebWindow.once('ready-to-show', () => {
                 kcwebWindow.show()
             })
