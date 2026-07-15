@@ -1,0 +1,18 @@
+{
+    "name": "poi-plugin-noro6-exporter",
+    "version": "1.0.0",
+    "description": "Export ships and equipment to noro6 Air Simulator",
+    "main": "index.jsx",
+    "author": "YourName",
+    "license": "MIT",
+    "poiPlugin": {
+        "name": "noro6 匯出器",
+        "description": "將艦娘與裝備資料匯出至制空權模擬器",
+        "icon": "fa/cloud-upload-alt",
+        "priority": 10
+    },
+    "dependencies": {
+        "react": "^16.0.0 || ^17.0.0",
+        "react-redux": "^7.0.0"
+    }
+}
