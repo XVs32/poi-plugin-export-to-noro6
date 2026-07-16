@@ -92,16 +92,29 @@ class ExportToKcweb extends Component {
             }
             kcwebWindow.focus()
         } else {
-            // Otherwise, create a new window
-            kcwebWindow = new BrowserWindow({ show: false })
+            kcwebWindow = new BrowserWindow({ 
+                show: false,
+                webPreferences: {
+                    nodeIntegration: false,
+                    contextIsolation: true,
+                    webSecurity: true,
+                }
+            })
             kcwebWindow.maximize()
 
-            const { session } = remote // Ensure we grab session from remote
+            const { session } = remote
             const windowSession = kcwebWindow.webContents.session
 
+            if (windowSession.setPermissionRequestHandler) {
+                windowSession.setPermissionRequestHandler((webContents, permission, callback) => {
+                    if (permission === 'clipboard-read' || permission === 'disk') {
+                        return callback(true)
+                    }
+                    callback(false)
+                })
+            }
+
             windowSession.on('will-download', (event, item, webContents) => {
-                // This triggers Electron's native "Save As" system dialog 
-                // so the user can choose where to save the backup file.
                 item.setSaveDialogOptions({
                     title: 'Save kc-web Backup',
                     defaultPath: item.getFilename()
