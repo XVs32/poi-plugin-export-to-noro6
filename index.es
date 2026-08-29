@@ -5,6 +5,9 @@ import { Button, Checkbox } from 'react-bootstrap'
 import { get, values } from 'lodash'
 
 const { clipboard, remote, shell } = window.require('electron')
+const fs = window.require('fs')
+const path = window.require('path')
+const os = window.require('os')
 
 function buildExportPayload(state, exportUnlocked) {
     const ships = get(state, 'info.ships', {})
@@ -56,8 +59,16 @@ function getSpEffectItemsForShip(ship, equips) {
 function getKcwebUrl(state, exportUnlocked) {
     const { ships, items } = buildExportPayload(state, exportUnlocked)
     const objectToExport = { ships, items }
-    return `https://noro6.github.io/kc-web#import:${JSON.stringify(objectToExport)}`
+    // Percent-encode the JSON payload so it survives being passed through
+    // to an external browser, matching what kc-web expects on its end
+    // (it calls decodeURIComponent on the fragment).
+    const encodedPayload = encodeURIComponent(JSON.stringify(objectToExport))
+    return `https://noro6.github.io/kc-web#import:${encodedPayload}`
 }
+
+// Fixed filename: each export overwrites the same temp file rather than
+// accumulating a new one every time.
+const REDIRECT_FILE = path.join(os.tmpdir(), 'poi-kcweb-export.html')
 
 @connect(state => ({ state }))
 class ExportToKcweb extends Component {
@@ -78,9 +89,31 @@ class ExportToKcweb extends Component {
 
     openNewPage = () => {
         const url = getKcwebUrl(this.props.state, this.state.exportUnlocked)
-        // Opens the URL in the user's default system browser instead of
-        // an in-app Electron window.
-        shell.openExternal(url)
+
+        // shell.openExternal has strict URL-length limits imposed by the
+        // OS launcher (Brave/Chromium loses long URLs silently). To work
+        // around this, write a small local redirect file and open that
+        // instead — the launched URL is just a short file:// path, and
+        // the redirect script inside handles navigating to the full,
+        // long kc-web URL once the browser is already open.
+        const redirectHtml = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Redirecting to kc-web…</title></head>
+<body>
+<script>window.location.replace(${JSON.stringify(url)});</script>
+<p>Redirecting to kc-web… if nothing happens, <a href="${url}">click here</a>.</p>
+</body>
+</html>`
+
+        fs.writeFile(REDIRECT_FILE, redirectHtml, 'utf8', err => {
+            if (err) {
+                console.error('Failed to write kc-web redirect file:', err)
+                return
+            }
+            shell.openExternal(`file://${REDIRECT_FILE}`)
+                .then(() => console.debug('Opened kc-web redirect file in default browser'))
+                .catch(e => console.error('shell.openExternal failed:', e))
+        })
     }
 
     copyLink = () => {
