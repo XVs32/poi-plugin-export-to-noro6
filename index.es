@@ -4,11 +4,7 @@ import { connect } from 'react-redux'
 import { Button, Checkbox } from 'react-bootstrap'
 import { get, values } from 'lodash'
 
-const { clipboard, remote } = window.require('electron')
-const { BrowserWindow } = remote
-
-// Keep a persistent reference to the window outside the component instance
-let kcwebWindow = null
+const { clipboard, remote, shell } = window.require('electron')
 
 function buildExportPayload(state, exportUnlocked) {
     const ships = get(state, 'info.ships', {})
@@ -82,70 +78,9 @@ class ExportToKcweb extends Component {
 
     openNewPage = () => {
         const url = getKcwebUrl(this.props.state, this.state.exportUnlocked)
-
-        // If the window exists and hasn't been closed by the user, reuse it
-        if (kcwebWindow && !kcwebWindow.isDestroyed()) {
-            kcwebWindow.loadURL(url)
-
-            if (kcwebWindow.isMinimized()) {
-                kcwebWindow.restore()
-            }
-            kcwebWindow.focus()
-        } else {
-            kcwebWindow = new BrowserWindow({ 
-                show: false,
-                webPreferences: {
-                    nodeIntegration: false,
-                    contextIsolation: true,
-                    webSecurity: true,
-                }
-            })
-            kcwebWindow.maximize()
-
-            const { session } = remote
-            const windowSession = kcwebWindow.webContents.session
-
-            if (windowSession.setPermissionRequestHandler) {
-                windowSession.setPermissionRequestHandler((webContents, permission, callback) => {
-                    if (permission === 'clipboard-read' || permission === 'disk') {
-                        return callback(true)
-                    }
-                    callback(false)
-                })
-            }
-
-            windowSession.on('will-download', (event, item, webContents) => {
-                item.setSaveDialogOptions({
-                    title: 'Save kc-web Backup',
-                    defaultPath: item.getFilename()
-                })
-                
-                item.on('updated', (event, state) => {
-                    if (state === 'interrupted') {
-                        console.warn('Download was interrupted')
-                    }
-                })
-
-                item.once('done', (event, state) => {
-                    if (state === 'completed') {
-                        console.debug('Backup download completed successfully')
-                    } else {
-                        console.error(`Download failed: ${state}`)
-                    }
-                })
-            })
-
-            kcwebWindow.once('ready-to-show', () => {
-                kcwebWindow.show()
-            })
-
-            // Reset reference to null when the window is closed
-            kcwebWindow.on('closed', () => {
-                kcwebWindow = null
-            })
-
-            kcwebWindow.loadURL(url)
-        }
+        // Opens the URL in the user's default system browser instead of
+        // an in-app Electron window.
+        shell.openExternal(url)
     }
 
     copyLink = () => {
