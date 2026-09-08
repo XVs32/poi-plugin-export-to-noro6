@@ -1,7 +1,7 @@
 {
     "name": "poi-plugin-noro6-exporter",
-    "version": "1.0.2",
-    "description": "Export ships and equipment to noro6 Air Simulator",
+    "version": "1.0.3",
+    "description": "Export ships and equipment to noro6(XVs32's edition) Air Simulator",
     "main": "index.es",
     "repository": {
         "type": "git",
@@ -20,7 +20,7 @@
     },
     "poiPlugin": {
         "name": "Noro6 Exporter",
-        "description": "Export ships and equipment to noro6 Air Simulator",
+        "description": "Export ships and equipment to noro6(XVs32's edition) Air Simulator",
         "icon": "fa/cloud-upload-alt",
         "priority": 99
     },
