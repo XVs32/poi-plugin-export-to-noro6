@@ -63,7 +63,7 @@ function getKcwebUrl(state, exportUnlocked) {
     // to an external browser, matching what kc-web expects on its end
     // (it calls decodeURIComponent on the fragment).
     const encodedPayload = encodeURIComponent(JSON.stringify(objectToExport))
-    return `https://noro6.github.io/kc-web#import:${encodedPayload}`
+    return `https://xvs32.github.io/kc-web#import:${encodedPayload}`
 }
 
 // Fixed filename: each export overwrites the same temp file rather than
