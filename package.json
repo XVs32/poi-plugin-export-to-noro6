@@ -1,6 +1,6 @@
 {
     "name": "poi-plugin-noro6-exporter",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Export ships and equipment to noro6(XVs32's edition) Air Simulator",
     "main": "index.es",
     "repository": {
@@ -16,7 +16,7 @@
     "license": "Apache-2.0",
     "author": {
         "name": "XVs32",
-        "link": "https://github.com/XVs32"
+        "url": "https://github.com/XVs32"
     },
     "poiPlugin": {
         "name": "Noro6 Exporter",
